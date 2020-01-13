@@ -1,0 +1,7 @@
+1. Record your own voice, for different sampling rate (6000, 8000, 10000, 16000, 20000 and 44100 Hz). Decide a sampling rate for your voice. Name that sampled voice as sampled voice. 
+2. Plot your sampled voice in time domain. 
+3. Take the Fourier transform of your sampled voice and plot it in frequency domain. (Write your own function for Fourier transform and Inverse Fourier transform) sampled voice freq 
+4. Report the bandwidth of your sampled voice (Bw) 
+5. Take the inverse Fourier transform of sampled voice freq. Plot this signal, play the voice of this signal. 
+6. Remove the higher frequency components from your voice, i.e remove the frequency component more than 0.8Bw. Plot the time domain signal corresponding to this, play this signal, report the difference corresponding to the original signal. 
+7. Set the phase response of the sampled voice as 0. Plot the time domain signal corresponding to this, play this signal, report the difference corresponding to the original signal.
