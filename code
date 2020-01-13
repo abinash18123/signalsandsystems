@@ -1,0 +1,144 @@
+import cmath
+from cmath import exp, pi
+import math as m
+import numpy as np 
+from scipy.io.wavfile import write
+from playsound import playsound
+import sounddevice as sd
+import matplotlib.pyplot as plt 
+
+
+#fourier transform
+def ft(arr):
+    ft=[]
+    n= len(arr)
+    for i in range(n):
+        count =0
+        for j in range(n):
+            count += arr[j]*exp(-2j*pi*i*j/N)
+        ft.append(count)
+    return ft
+#inverse fourier transform
+def ift(arr):
+    ift=[]
+    n= len(arr)
+    for i in range(n):
+        count =0
+        for j in range(n):
+            count += arr[j]*exp(2j*pi*i*j/N)
+        ift.append(count/N)
+    return ift
+
+#closing if any plots present
+plt.close('all')
+
+#user_input
+# time = float(input())
+# sample_rate = int(input())
+time = 1
+sample_rate = 1000
+
+
+N = sample_rate*time
+
+#recordingaudio
+#https://python-sounddevice.readthedocs.io/en/0.3.14/usage.html#recording
+
+print("Recording")
+sampledvoice = sd.rec(int(N), samplerate=sample_rate, channels=1)
+sd.wait() 
+sampled_voice = sampledvoice.flatten()
+print("OK") 
+#sampled voice array
+write('sampled_voice.wav', sample_rate , np.array(sampled_voice))
+playsound('sampled_voice.wav')
+
+plt.title('sampled_voice')
+plt.plot(sampled_voice)
+
+
+
+
+#inbuilt func// for x-axis
+n = len(sampled_voice)
+line =(float)(sample_rate/2)*(np.linspace(0,1,round(n/2)))
+lines =  (sample_rate/2)*(np.linspace(0,1,round(n)))
+
+#fourier transform
+fourier = list(map(abs,ft(sampled_voice)))
+sampled_voice_freq = fourier[:len(line)]
+
+
+#inverse fourier transform of the signal
+inv = (ift(ft(sampled_voice)))
+
+inver = list(ft(sampled_voice))
+#removing 0.8wb
+invert = inver[:(8*len(inver))//10] + [0]*((2*len(inver))//10)
+inverting = ift(invert)
+
+
+
+#phase response zero
+scale = [i.real for i in inver]
+# positive = [abs(i) for i in scale]
+ifft = ift(scale)
+final_ift = [abs(i) for i in ifft]
+
+
+
+scale = [i.real for i in final_ift]
+scale2 = [i.item() for i in scale]
+scaled = np.int16(scale2/np.max(np.abs(scale2)) * 32767)
+
+
+for i in range(len(inverting)):
+	if (inverting[i]==invert[i]):
+		print(True)
+	else :
+		print(False)
+write ("phaseremoval.wav",sample_rate , np.array(scaled))
+playsound('phaseremoval.wav')
+
+
+scale = [i.real for i in inv]
+scale2 = [i.item() for i in scale]
+scaled = np.int16(scale2/np.max(np.abs(scale2)) * 32767)
+
+
+
+write ("inverse_audio.wav",sample_rate , np.array(scaled))
+playsound('inverse_audio.wav')
+
+
+plt.figure()
+plt.plot(line,sampled_voice_freq)
+plt.title("sampled_voice_freq")
+plt.xlabel("FREQUENCY")
+plt.ylabel("MAGNITUDE")
+
+
+plt.figure()
+plt.plot(inv)
+plt.title("inverse_fourier_transform")
+plt.xlabel("TIME")
+plt.ylabel("MAGNITUDE")
+
+
+plt.figure()
+plt.plot(inverting)
+plt.title("removing 0.8wb")
+plt.xlabel("TIME")
+plt.ylabel("MAGNITUDE")
+
+
+
+plt.figure()
+plt.plot(final_ift)
+plt.title("phase response zero")
+plt.xlabel("TIME")
+plt.ylabel("MAGNITUDE")
+
+
+
+plt.show()
